@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finalizar Pedido | REPUESTOS LEÓN</title>
+    <link rel="stylesheet" href="styles.css"> 
+    <style>
+        .form-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: rgba(0, 0, 0, 0.7); /* Fondo semi-transparente para el formulario */
+            backdrop-filter: blur(8px);
+            border-radius: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #d1d5db; /* Texto de etiqueta claro */
+            font-weight: bold;
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05); /* Fondo oscuro en campos */
+            color: white;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: #f97316; /* Resaltar al enfocar */
+            outline: none;
+        }
+        /* Estilo para el botón Confirmar */
+        .submit-button {
+            width: 100%;
+            padding: 1rem;
+            background: #f97316;
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .submit-button:hover {
+            background: #ea580c;
+        }
+
+        /* Estilo del resumen del producto */
+        #resumen-producto {
+            margin-bottom: 2rem;
+            background-color: rgba(249, 115, 22, 0.1); /* Destacar el producto */
+            border-left: 5px solid #f97316;
+            padding: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="background">
+        <div class="pattern"></div>
+        <div class="light-effect light-1"></div>
+        <div class="light-effect light-2"></div>
+    </div>
+    
+    <main class="main-content">
+        <div class="page active">
+            <h1 class="page-title">Finalizar Pedido</h1>
+            
+            <div class="product-card" id="resumen-producto">
+                <h2 class="product-title" style="margin-bottom: 0;">Artículo Seleccionado: <span id="nombre-producto" style="color: #f97316;">Cargando...</span></h2>
+            </div>
+
+            <div class="form-container">
+                <h3 style="color: white; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 0.5rem;">Datos de Envío</h3>
+
+                <form id="order-form" action="#" method="POST"> 
+                    
+                    <div class="form-group">
+                        <label for="nombre">Nombre Completo:</label>
+                        <input type="text" id="nombre" name="nombre" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="telefono">Teléfono/WhatsApp:</label>
+                        <input type="tel" id="telefono" name="telefono" required placeholder="Ej: +591 7XXXXXXX">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="direccion">Dirección de Envío:</label>
+                        <textarea id="direccion" name="direccion" required rows="3" placeholder="Calle, número de casa, barrio/zona de referencia..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cantidad">Cantidad:</label>
+                        <input type="number" id="cantidad" name="cantidad" value="1" min="1" required>
+                    </div>
+                    
+                    <input type="hidden" id="producto-seleccionado" name="producto_seleccionado" value="">
+
+                    <button type="submit" class="submit-button">
+                        Confirmar y Enviar Pedido
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const productoUrl = params.get('producto');
+            const nombreProductoSpan = document.getElementById('nombre-producto');
+            const inputProducto = document.getElementById('producto-seleccionado');
+
+            let nombreProducto = "Producto no especificado";
+            let nombreParaEnvio = "NO-INFO";
+
+            if (productoUrl) {
+                // 1. Formatea el nombre del producto para mostrarlo en pantalla (ej: 'cascos-rockstar-1' -> 'Cascos Rockstar 1')
+                nombreProducto = productoUrl.split('-').map(word => 
+                    word.charAt(0).toUpperCase() + word.slice(1)
+                ).join(' ');
+                
+                // 2. Almacena el nombre sin formato para enviarlo en el formulario
+                nombreParaEnvio = productoUrl.toUpperCase();
+            }
+
+            // Actualiza el texto en pantalla y el campo oculto
+            nombreProductoSpan.textContent = nombreProducto;
+            inputProducto.value = nombreParaEnvio;
+
+            
+            /* --- FUNCIÓN PARA ENVIAR POR WHATSAPP (RECOMENDADO SIN BACKEND) --- */
+            const form = document.getElementById('order-form');
+            form.addEventListener('submit', function(e) {
+                e.preventDefault(); // Detiene el envío normal del formulario
+
+                const nombre = document.getElementById('nombre').value;
+                const telefono = document.getElementById('telefono').value;
+                const direccion = document.getElementById('direccion').value;
+                const cantidad = document.getElementById('cantidad').value;
+                const producto = inputProducto.value; // Ya tiene el nombre formateado para envío
+
+                // Mensaje a enviar por WhatsApp
+                const mensaje = `
+                    ¡Hola, REPUESTOS LEÓN! 🎉
+                    Quiero hacer un pedido:
+                    
+                    *Producto:* ${nombreProducto} (${producto})
+                    *Cantidad:* ${cantidad}
+                    
+                    ---
+                    
+                    *Datos de Contacto:*
+                    *Nombre:* ${nombre}
+                    *Teléfono:* ${telefono}
+                    *Dirección:* ${direccion}
+                    
+                    Por favor, confírmenme el stock y el costo de envío. ¡Gracias!
+                `.trim().replace(/\n\s+/g, '%0A'); // Limpia y formatea saltos de línea para la URL
+
+                // Reemplaza XXXXXXXXXX con tu número de WhatsApp con código de país (ej: 59170001122)
+                const numeroWhatsApp = '63741022'; // <-- ¡IMPORTANTE! COLOCA TU NÚMERO AQUÍ
+                
+                const urlWhatsApp = `https://api.whatsapp.com/send?phone=${numeroWhatsApp}&text=${mensaje}`;
+                
+                // Abre el enlace de WhatsApp en una nueva pestaña
+                window.open(urlWhatsApp, '_blank');
+                
+                // Opcional: Mostrar un mensaje de éxito
+                alert("¡Pedido listo! Te estamos redireccionando a WhatsApp para finalizar la compra.");
+                
+            });
+        });
+    </script>
+</body>
+</html>
